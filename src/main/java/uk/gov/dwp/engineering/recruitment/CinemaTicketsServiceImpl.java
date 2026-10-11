@@ -44,7 +44,7 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
         seatReservationService.reserveSeats(accountId, seatsToReserve);
 
-        return new BookingConfirmation(accountId);
+        return new BookingConfirmation(accountId, seatsToReserve, paymentAmount);
   }
 
   private BigDecimal calculatePayment(TicketCounts counts) {

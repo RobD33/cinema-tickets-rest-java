@@ -1,7 +1,19 @@
 # Cinema Tickets Code Test
 
-## Objective
+### Requirements
 
-To assess your ability to build a simple API.
+| Scenario                           | Expected result                  |
+| ---------------------------------- | ---------------------------------|
+| Account ID is zero or negative     | Reject booking                   |
+| More than 25 tickets               | Reject booking                   |
+| No ADULT ticket                    | Reject booking                   |
+| More INFANT than ADULT             | Reject booking                   |
+| Empty booking or zero tickets      | Reject booking                   |
+| Negative ticket quantities         | Reject booking                   |
+| Valid booking within all limits    | Process payment and reserve seats|
 
-The scenario and requirements will be provided separately.
+
+### Assumptions
+
+One infant per adult lap
+Requests with negative ticket count should be rejected

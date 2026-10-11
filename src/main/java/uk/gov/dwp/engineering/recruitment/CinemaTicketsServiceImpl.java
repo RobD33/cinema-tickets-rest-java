@@ -12,9 +12,9 @@ import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
 @Service
 public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
-    private static final BigDecimal ADULT_PRICE = new BigDecimal("25.99");
-    private static final BigDecimal CHILD_PRICE = new BigDecimal("17.50");
-    private static final BigDecimal INFANT_PRICE = BigDecimal.ZERO;
+  private static final BigDecimal ADULT_PRICE = new BigDecimal("25.99");
+  private static final BigDecimal CHILD_PRICE = new BigDecimal("17.50");
+  private static final BigDecimal INFANT_PRICE = BigDecimal.ZERO;
 
   private final PaymentService paymentService;
 

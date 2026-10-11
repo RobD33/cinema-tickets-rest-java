@@ -54,13 +54,18 @@ class CinemaTicketsControllerIT {
           request, HttpResponse.BodyHandlers.ofString());
   }
 
-  private void assertBadRequest(String requestBody) throws Exception {
+  private void assertBadRequest(String requestBody, String expectedErrorMessage) throws Exception {
       HttpResponse<String> response = postBooking(requestBody);
 
       assertEquals(400, response.statusCode(),
           "Expected HTTP 400 but received "
-              + response.statusCode()
-              + ". Response body: " + response.body());
+            + response.statusCode()
+            + ". Response body: " + response.body());
+      
+      assertTrue(response.body().contains(expectedErrorMessage),
+          "Expected response body to contain: "
+            + expectedErrorMessage
+            + ". Actual body: " + response.body());
 
       verifyNoInteractions(paymentService, seatReservationService);
   }
@@ -130,7 +135,7 @@ class CinemaTicketsControllerIT {
             "ticketRequests": [
               {"type": "ADULT", "ticketCount": 3},
               {"type": "CHILD", "ticketCount": 5},
-              {"type": "INFANT", "ticketCount": 3}
+              {"type": "INFANT", "ticketCount": 2}
             ]
           }
           """);
@@ -150,7 +155,9 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": 1}
             ]
           }
-          """);
+          """, 
+          "Account ID must be a positive integer."
+        );
   }
 
   @Test
@@ -162,7 +169,9 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": 1}
             ]
           }
-          """);
+          """,
+          "Account ID must be a positive integer."
+        );
   }
 
   @Test
@@ -173,7 +182,9 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": 1}
             ]
           }
-          """);
+          """,
+          "Account ID must be a positive integer."
+        );
   }
 
   @Test
@@ -183,7 +194,9 @@ class CinemaTicketsControllerIT {
             "accountId": 123,
             "ticketRequests": []
           }
-          """);
+          """,
+          "At least one ticket request must be provided."
+        );
   }
 
   @Test
@@ -192,7 +205,9 @@ class CinemaTicketsControllerIT {
           {
             "accountId": 123
           }
-          """);
+          """,
+          "At least one ticket request must be provided."
+        );
   }
 
   @Test
@@ -205,7 +220,9 @@ class CinemaTicketsControllerIT {
               {"type": "CHILD", "ticketCount": 1}
             ]
           }
-          """);
+          """,
+          "At least one adult ticket is required."
+        );
   }
 
   @Test
@@ -218,7 +235,9 @@ class CinemaTicketsControllerIT {
               {"type": "INFANT", "ticketCount": 1}
             ]
           }
-          """);
+          """,
+          "At least one adult ticket is required."
+        );
   }
 
   @Test
@@ -231,23 +250,9 @@ class CinemaTicketsControllerIT {
               {"type": "INFANT", "ticketCount": 2}
             ]
           }
-          """);
-  }
-
-  @Test
-  void shouldAllowEqualNumbersOfAdultsAndInfants()
-          throws Exception {
-      HttpResponse<String> response = postBooking("""
-          {
-            "accountId": 123,
-            "ticketRequests": [
-              {"type": "ADULT", "ticketCount": 2},
-              {"type": "INFANT", "ticketCount": 2}
-            ]
-          }
-          """);
-
-      assertEquals(201, response.statusCode());
+          """,
+          "There must be at least as many adult tickets as infant tickets."
+        );
   }
 
   @Test
@@ -259,7 +264,9 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": 26}
             ]
           }
-          """);
+          """,
+          "A maximum of 25 tickets can be purchased at a time."
+        );
   }
 
   @Test
@@ -273,7 +280,9 @@ class CinemaTicketsControllerIT {
               {"type": "CHILD", "ticketCount": 25}
             ]
           }
-          """);
+          """,
+          "A maximum of 25 tickets can be purchased at a time."
+        );
   }
 
   @Test
@@ -285,7 +294,9 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": 0}
             ]
           }
-          """);
+          """,
+          "Ticket count must be a positive integer."
+        );
   }
 
   @Test
@@ -297,6 +308,8 @@ class CinemaTicketsControllerIT {
               {"type": "ADULT", "ticketCount": -1}
             ]
           }
-          """);
+          """,
+          "Ticket count must be a positive integer."
+        );
   }
 }

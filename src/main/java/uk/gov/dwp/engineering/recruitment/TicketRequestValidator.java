@@ -1,12 +1,11 @@
 package uk.gov.dwp.engineering.recruitment;
 
-import java.util.Arrays;
-
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
-import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
 public class TicketRequestValidator {
+
+    private static final int MAX_TICKETS = 25;
 
     private final Long accountId;
     private final TicketRequest[] ticketRequests;
@@ -79,10 +78,10 @@ public class TicketRequestValidator {
     private void validateMaximumTicketCount(TicketCounts counts) throws InvalidBookingException {
         long totalTicketCount = counts.adults() + counts.children() + counts.infants();
 
-        if (totalTicketCount > 25) {
+        if (totalTicketCount > MAX_TICKETS) {
             throw new InvalidBookingException(
-                    "A maximum of 25 tickets can be purchased at a time."
-            );
+                    "A maximum of " + MAX_TICKETS + " tickets can be purchased at a time."
+                );
         }   
     }
 }

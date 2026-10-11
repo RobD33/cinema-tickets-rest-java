@@ -184,4 +184,40 @@ class TicketRequestValidatorTest {
                 validator::validateTicketRequest
         );
     }
+
+    @Test
+    void shouldAcceptBookingWithMoreAdultsThanInfants() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 3);
+        TicketRequest infants = new TicketRequest(TicketType.INFANT, 2);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults, infants);
+
+        assertDoesNotThrow(validator::validateTicketRequest);
+    }
+
+    @Test
+    void shouldAcceptBookingWithEqualNumbersOfAdultsAndInfants() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 2);
+        TicketRequest infants = new TicketRequest(TicketType.INFANT, 2);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults, infants);
+
+        assertDoesNotThrow(validator::validateTicketRequest);
+    }
+
+    @Test
+    void shouldRejectBookingWithMoreInfantsThanAdults() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 1);
+        TicketRequest infants = new TicketRequest(TicketType.INFANT, 2);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults, infants);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
 }

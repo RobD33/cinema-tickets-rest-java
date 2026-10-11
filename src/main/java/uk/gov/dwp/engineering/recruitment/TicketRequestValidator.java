@@ -22,6 +22,7 @@ public class TicketRequestValidator {
         validateAccountId();
         validateTicketRequests();
         validateAdultTicketPresent();
+        validateAdultToInfantRatio();
     }
 
     private void validateAccountId() throws InvalidBookingException {
@@ -63,6 +64,24 @@ public class TicketRequestValidator {
         if (!hasAdultTicket) {
             throw new InvalidBookingException(
                     "At least one adult ticket must be purchased."
+            );
+        }
+    }
+
+    private void validateAdultToInfantRatio() throws InvalidBookingException {
+        int adultCount = Arrays.stream(ticketRequests)
+                .filter(request -> request.type() == TicketType.ADULT)
+                .mapToInt(TicketRequest::ticketCount)
+                .sum();
+
+        int infantCount = Arrays.stream(ticketRequests)
+                .filter(request -> request.type() == TicketType.INFANT)
+                .mapToInt(TicketRequest::ticketCount)
+                .sum();
+
+        if (adultCount < infantCount) {
+            throw new InvalidBookingException(
+                    "There must be at least as many adult tickets as infant tickets."
             );
         }
     }

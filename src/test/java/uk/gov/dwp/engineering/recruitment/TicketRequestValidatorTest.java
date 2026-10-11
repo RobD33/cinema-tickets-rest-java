@@ -120,4 +120,40 @@ class TicketRequestValidatorTest {
 
         assertDoesNotThrow(validator::validateTicketRequest);
     }
+
+    @Test
+    void shouldRejectTicketRequestsContainingZeroTicketCount() {
+        TicketRequest firstRequest =
+                new TicketRequest(TicketType.ADULT, 1);
+                TicketRequest secondRequest =
+                new TicketRequest(TicketType.CHILD, 3);
+        TicketRequest thirdRequest =
+                new TicketRequest(TicketType.CHILD, 0);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, firstRequest, secondRequest, thirdRequest);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
+
+    @Test
+    void shouldRejectTicketRequestsContainingNegativeTicketCount() {
+        TicketRequest firstRequest =
+                new TicketRequest(TicketType.ADULT, 1);
+                TicketRequest secondRequest =
+                new TicketRequest(TicketType.CHILD, 3);
+        TicketRequest thirdRequest =
+                new TicketRequest(TicketType.CHILD, -2);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, firstRequest, secondRequest, thirdRequest);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
 }

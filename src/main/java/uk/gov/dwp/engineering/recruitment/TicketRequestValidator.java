@@ -41,6 +41,12 @@ public class TicketRequestValidator {
                         "Ticket requests must not contain null values."
                 );
             }
+
+            if (ticketRequest.ticketCount() <= 0) {
+                throw new InvalidBookingException(
+                    "Ticket count must be a positive integer."
+                );
+            }
         }
     }
 }

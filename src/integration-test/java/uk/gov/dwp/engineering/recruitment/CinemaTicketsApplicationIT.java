@@ -23,24 +23,8 @@ class CinemaTicketsControllerIT {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    @Test
-    void shouldReturnCreatedWhenBookingTickets() throws Exception {
-        String requestBody = """
-            {
-              "accountId": 123,
-              "ticketRequests": [
-                {
-                  "type": "ADULT",
-                  "ticketCount": 1
-                },
-                {
-                  "type": "CHILD",
-                  "ticketCount": 1
-                }
-              ]
-            }
-            """;
-
+    private HttpResponse<String> postBooking(String requestBody)
+            throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(
                 "http://localhost:" + port + "/cinema/bookings"))
@@ -49,10 +33,39 @@ class CinemaTicketsControllerIT {
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build();
 
-        HttpResponse<String> response = httpClient.send(
+        return httpClient.send(
             request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    @Test
+    void shouldReturnCreatedWhenBookingAdultAndChildTickets()
+            throws Exception {
+        HttpResponse<String> response = postBooking("""
+            {
+              "accountId": 123,
+              "ticketRequests": [
+                {"type": "ADULT", "ticketCount": 1},
+                {"type": "CHILD", "ticketCount": 1}
+              ]
+            }
+            """);
 
         assertEquals(201, response.statusCode());
         assertTrue(response.body().contains("\"accountId\":123"));
+    }
+
+    @Test
+    void shouldReturnCreatedWhenBookingAdultTicketsOnly()
+            throws Exception {
+        HttpResponse<String> response = postBooking("""
+            {
+              "accountId": 123,
+              "ticketRequests": [
+                {"type": "ADULT", "ticketCount": 2}
+              ]
+            }
+            """);
+
+        assertEquals(201, response.statusCode());
     }
 }

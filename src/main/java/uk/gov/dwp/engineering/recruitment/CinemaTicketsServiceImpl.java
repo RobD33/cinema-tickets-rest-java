@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.engineering.recruitment.domain.BookingConfirmation;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
+import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 import uk.gov.dwp.engineering.recruitment.thirdparty.PaymentService;
 import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
@@ -38,7 +39,11 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
 
         BigDecimal paymentAmount = calculatePayment(ticketRequests);
 
+        long seatsToReserve = calculateSeatsToReserve(ticketRequests);
+
         paymentService.debitAccount(accountId, paymentAmount);
+
+        seatReservationService.reserveSeats(accountId, seatsToReserve);
 
         return new BookingConfirmation(accountId);
   }
@@ -46,21 +51,36 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
   private BigDecimal calculatePayment(
             final TicketRequest... ticketRequests) {
 
-        BigDecimal total = BigDecimal.ZERO;
+      BigDecimal total = BigDecimal.ZERO;
 
-        for (TicketRequest request : ticketRequests) {
-            BigDecimal ticketPrice = switch (request.type()) {
-                case ADULT -> ADULT_PRICE;
-                case CHILD -> CHILD_PRICE;
-                case INFANT -> INFANT_PRICE;
-            };
+      for (TicketRequest request : ticketRequests) {
+          BigDecimal ticketPrice = switch (request.type()) {
+              case ADULT -> ADULT_PRICE;
+              case CHILD -> CHILD_PRICE;
+              case INFANT -> INFANT_PRICE;
+          };
 
-            BigDecimal requestTotal = ticketPrice.multiply(
-                    BigDecimal.valueOf(request.ticketCount()));
+          BigDecimal requestTotal = ticketPrice.multiply(
+                  BigDecimal.valueOf(request.ticketCount()));
 
-            total = total.add(requestTotal);
-        }
+          total = total.add(requestTotal);
+      }
 
-        return total;
-    }
+    return total;
+  }
+
+    private long calculateSeatsToReserve(
+            final TicketRequest... ticketRequests) {
+
+      long seats = 0;
+
+      for (TicketRequest request : ticketRequests) {
+          if (request.type() == TicketType.ADULT
+                  || request.type() == TicketType.CHILD) {
+              seats += request.ticketCount();
+          }
+      }
+
+      return seats;
+  }
 }

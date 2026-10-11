@@ -1,8 +1,10 @@
 package uk.gov.dwp.engineering.recruitment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -41,78 +43,77 @@ class CinemaTicketsServiceImplTest {
     }
 
     @Test
-    void shouldCalculatePaymentForOneAdult()
+    void shouldCalculatePaymentAndReserveOneSeatForOneAdult()
             throws InvalidBookingException {
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-        purchaseAndVerifyPayment(
+        purchaseAndVerifyBooking(
                 "25.99",
+                1L,
                 new TicketRequest(TicketType.ADULT, 1));
     }
 
     @Test
-    void shouldCalculatePaymentForMultipleAdults()
+    void shouldCalculatePaymentAndReserveSeatsForMultipleAdults()
             throws InvalidBookingException {
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-        purchaseAndVerifyPayment(
+        purchaseAndVerifyBooking(
                 "51.98",
+                2L,
                 new TicketRequest(TicketType.ADULT, 2));
     }
 
     @Test
-    void shouldCalculatePaymentForAdultAndChild()
+    void shouldCalculatePaymentAndReserveSeatsForAdultAndChild()
             throws InvalidBookingException {
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-        purchaseAndVerifyPayment(
+        purchaseAndVerifyBooking(
                 "43.49",
+                2L,
                 new TicketRequest(TicketType.ADULT, 1),
                 new TicketRequest(TicketType.CHILD, 1));
     }
 
     @Test
-    void shouldNotChargeForInfantTickets() throws InvalidBookingException {
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-        purchaseAndVerifyPayment(
+    void shouldNotReserveAnExtraSeatForAnInfant()
+            throws InvalidBookingException {
+        purchaseAndVerifyBooking(
                 "25.99",
+                1L,
                 new TicketRequest(TicketType.ADULT, 1),
                 new TicketRequest(TicketType.INFANT, 1));
     }
 
     @Test
-    void shouldCalculatePaymentForMultipleTicketTypes()
+    void shouldCalculatePaymentAndReserveSeatsForMultipleTicketTypes()
             throws InvalidBookingException {
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-        purchaseAndVerifyPayment(
+        purchaseAndVerifyBooking(
                 "104.48",
+                5L,
                 new TicketRequest(TicketType.ADULT, 2),
                 new TicketRequest(TicketType.CHILD, 3),
                 new TicketRequest(TicketType.INFANT, 2));
     }
 
     @Test
-    void shouldNotCallPaymentWhenBookingIsInvalid() {
+    void shouldNotCallPaymentOrReserveSeatsWhenBookingIsInvalid() {
         TicketRequest child = new TicketRequest(TicketType.CHILD, 1);
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 InvalidBookingException.class,
                 () -> cinemaTicketsService.purchaseTickets(123L, child));
 
         verifyNoInteractions(paymentService, seatReservationService);
     }
 
-    private void purchaseAndVerifyPayment(
-        String expectedAmount,
-        TicketRequest... ticketRequests
-    ) throws InvalidBookingException {
+    private void purchaseAndVerifyBooking(
+            String expectedAmount,
+            Long expectedSeats,
+            TicketRequest... ticketRequests)
+            throws InvalidBookingException {
+
+        when(paymentService.debitAccount(
+                anyLong(), any(BigDecimal.class)))
+                .thenReturn(ResponseEntity.ok("Payment successful"));
+
+        when(seatReservationService.reserveSeats(anyLong(), anyLong()))
+                .thenReturn(ResponseEntity.ok("Seats reserved"));
 
         BookingConfirmation confirmation =
                 cinemaTicketsService.purchaseTickets(123L, ticketRequests);
@@ -120,8 +121,11 @@ class CinemaTicketsServiceImplTest {
         assertEquals(123L, confirmation.accountId());
 
         verify(paymentService).debitAccount(
-                org.mockito.ArgumentMatchers.eq(123L),
-                org.mockito.ArgumentMatchers.eq(
-                        new BigDecimal(expectedAmount)));
+                eq(123L),
+                eq(new BigDecimal(expectedAmount)));
+
+        verify(seatReservationService).reserveSeats(
+                eq(123L),
+                eq(expectedSeats));
     }
 }

@@ -24,8 +24,52 @@
 
 - Turn specifications into requirements
 - TDD
-- Start with request validation, create new validation class for separation of concerns.
+- Request validation, create new validation class for separation of concerns.
 - integrate validation class and integration test behaviour.
 - Calculate payment amount and integrate payments service.
 - Calculate number of seats and itegrate reservation service.
+- Due to simplicity and single use these calculations are not separated into distinct classes.
 - Add mock third party services to integration tests and verify interaction.
+
+## Building and Running the Application
+
+### Prerequisites
+
+Install
+
+- Java 21
+- Apache Maven
+
+### Build the Application
+
+Run
+
+```bash
+mvn clean package
+```
+
+This cleans previous build output, compiles the application, and packages it into a JAR file.
+
+### Run the Application
+
+Start the Spring Boot application:
+
+```bash
+mvn spring-boot:run
+```
+
+### Run the Unit Tests
+
+```bash
+mvn test
+```
+
+These tests cover ticket validation, payment calculations, seat reservation calculations.
+
+### Run the Integration Tests
+
+```bash
+mvn verify
+```
+
+The integration tests start the application on a random port and send HTTP requests to the booking endpoint. They verify successful and invalid booking scenarios, and interactions with the payment and seat reservation services.

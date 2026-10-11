@@ -6,10 +6,10 @@
 | ---------------------------------- | ---------------------------------|
 | Account ID is zero or negative     | Reject booking                   |
 | Empty booking or zero tickets      | Reject booking                   |
+| Negative or zero ticket count      | Reject booking                   |
 | No ADULT ticket                    | Reject booking                   |
 | More INFANT than ADULT             | Reject booking                   |
 | More than 25 tickets               | Reject booking                   |
-| Negative ticket quantities         | Reject booking                   |
 | Valid booking                      | Process payment and reserve seats|
 
 

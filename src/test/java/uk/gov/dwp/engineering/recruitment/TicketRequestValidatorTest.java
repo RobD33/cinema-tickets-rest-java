@@ -220,4 +220,52 @@ class TicketRequestValidatorTest {
                 validator::validateTicketRequest
         );
     }
+
+    @Test
+    void shouldAcceptBookingWith24Tickets() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 24);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults);
+
+        assertDoesNotThrow(validator::validateTicketRequest);
+    }
+
+    @Test
+    void shouldAcceptBookingWithExactly25Tickets() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 25);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults);
+
+        assertDoesNotThrow(validator::validateTicketRequest);
+    }
+
+    @Test
+    void shouldRejectBookingWith26Tickets() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 26);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
+
+    @Test
+    void shouldCountTicketsAcrossMultipleRequests() {
+        TicketRequest adults = new TicketRequest(TicketType.ADULT, 13);
+        TicketRequest children = new TicketRequest(TicketType.CHILD, 10);
+        TicketRequest infants = new TicketRequest(TicketType.INFANT, 3);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, adults, children, infants);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
 }

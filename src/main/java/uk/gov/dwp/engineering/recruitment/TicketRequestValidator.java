@@ -23,6 +23,7 @@ public class TicketRequestValidator {
         validateTicketRequests();
         validateAdultTicketPresent();
         validateAdultToInfantRatio();
+        validateMaximumTicketCount();
     }
 
     private void validateAccountId() throws InvalidBookingException {
@@ -85,4 +86,16 @@ public class TicketRequestValidator {
             );
         }
     }
+
+    private void validateMaximumTicketCount() throws InvalidBookingException {
+    int totalTicketCount = Arrays.stream(ticketRequests)
+            .mapToInt(TicketRequest::ticketCount)
+            .sum();
+
+    if (totalTicketCount > 25) {
+        throw new InvalidBookingException(
+                "A maximum of 25 tickets can be purchased at a time."
+        );
+    }
+}
 }

@@ -17,6 +17,7 @@ public class TicketRequestValidator {
 
     public void validateTicketRequest() throws InvalidBookingException {
         validateAccountId();
+        validateTicketRequests();
     }
 
     private void validateAccountId() throws InvalidBookingException {
@@ -24,6 +25,22 @@ public class TicketRequestValidator {
             throw new InvalidBookingException(
                     "Account ID must be a positive integer."
             );
+        }
+    }
+
+    private void validateTicketRequests() throws InvalidBookingException {
+        if (ticketRequests == null || ticketRequests.length == 0) {
+            throw new InvalidBookingException(
+                    "At least one ticket request must be provided."
+            );
+        }
+
+        for (TicketRequest ticketRequest : ticketRequests) {
+            if (ticketRequest == null) {
+                throw new InvalidBookingException(
+                        "Ticket requests must not contain null values."
+                );
+            }
         }
     }
 }

@@ -42,6 +42,33 @@ class CinemaTicketsServiceImplTest {
                 paymentService, seatReservationService);
     }
 
+     private void purchaseAndVerifyBooking(
+            String expectedAmount,
+            Long expectedSeats,
+            TicketRequest... ticketRequests)
+            throws InvalidBookingException {
+
+        when(paymentService.debitAccount(
+                anyLong(), any(BigDecimal.class)))
+                .thenReturn(ResponseEntity.ok("Payment successful"));
+
+        when(seatReservationService.reserveSeats(anyLong(), anyLong()))
+                .thenReturn(ResponseEntity.ok("Seats reserved"));
+
+        BookingConfirmation confirmation =
+                cinemaTicketsService.purchaseTickets(123L, ticketRequests);
+
+        assertEquals(123L, confirmation.accountId());
+
+        verify(paymentService).debitAccount(
+                eq(123L),
+                eq(new BigDecimal(expectedAmount)));
+
+        verify(seatReservationService).reserveSeats(
+                eq(123L),
+                eq(expectedSeats));
+    }
+
     @Test
     void shouldCalculatePaymentAndReserveOneSeatForOneAdult()
             throws InvalidBookingException {
@@ -100,32 +127,5 @@ class CinemaTicketsServiceImplTest {
                 () -> cinemaTicketsService.purchaseTickets(123L, child));
 
         verifyNoInteractions(paymentService, seatReservationService);
-    }
-
-    private void purchaseAndVerifyBooking(
-            String expectedAmount,
-            Long expectedSeats,
-            TicketRequest... ticketRequests)
-            throws InvalidBookingException {
-
-        when(paymentService.debitAccount(
-                anyLong(), any(BigDecimal.class)))
-                .thenReturn(ResponseEntity.ok("Payment successful"));
-
-        when(seatReservationService.reserveSeats(anyLong(), anyLong()))
-                .thenReturn(ResponseEntity.ok("Seats reserved"));
-
-        BookingConfirmation confirmation =
-                cinemaTicketsService.purchaseTickets(123L, ticketRequests);
-
-        assertEquals(123L, confirmation.accountId());
-
-        verify(paymentService).debitAccount(
-                eq(123L),
-                eq(new BigDecimal(expectedAmount)));
-
-        verify(seatReservationService).reserveSeats(
-                eq(123L),
-                eq(expectedSeats));
     }
 }

@@ -18,8 +18,14 @@
 - One infant per adult lap
 - Requests with negative ticket count should be rejected
 - Request with zero tickets requests should be rejected
+- openapi spec is out of line with controller - using code as source of truth.
 
 ### Approach
 
+- Turn specifications into requirements
 - TDD
 - Start with request validation, create new validation class for separation of concerns.
+- integrate validation class and integration test behaviour.
+- Calculate payment amount and integrate payments service.
+- Calculate number of seats and itegrate reservation service.
+- Add mock third party services to integration tests and verify interaction.

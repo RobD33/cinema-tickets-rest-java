@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import uk.gov.dwp.engineering.recruitment.domain.BookingConfirmation;
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
-import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 import uk.gov.dwp.engineering.recruitment.thirdparty.PaymentService;
 import uk.gov.dwp.engineering.recruitment.thirdparty.SeatReservationService;
@@ -36,8 +35,6 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
         new TicketRequestValidator(accountId, ticketRequests);
 
         TicketCounts counts = validator.validateTicketRequest();
-
-         TicketCounts.from(ticketRequests);
 
         BigDecimal paymentAmount = calculatePayment(counts);
 

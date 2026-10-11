@@ -156,4 +156,32 @@ class TicketRequestValidatorTest {
                 validator::validateTicketRequest
         );
     }
+
+    @Test
+    void shouldRejectBookingWithOnlyChildTickets() {
+        TicketRequest childRequest =
+                new TicketRequest(TicketType.CHILD, 1);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, childRequest);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
+
+    @Test
+    void shouldRejectBookingWithOnlyInfantTickets() {
+        TicketRequest infantRequest =
+                new TicketRequest(TicketType.INFANT, 1);
+
+        TicketRequestValidator validator =
+                new TicketRequestValidator(1L, infantRequest);
+
+        assertThrows(
+                InvalidBookingException.class,
+                validator::validateTicketRequest
+        );
+    }
 }

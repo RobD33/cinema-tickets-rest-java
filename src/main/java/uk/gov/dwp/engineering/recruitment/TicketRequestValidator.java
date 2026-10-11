@@ -1,6 +1,9 @@
 package uk.gov.dwp.engineering.recruitment;
 
+import java.util.Arrays;
+
 import uk.gov.dwp.engineering.recruitment.domain.TicketRequest;
+import uk.gov.dwp.engineering.recruitment.domain.TicketType;
 import uk.gov.dwp.engineering.recruitment.exception.InvalidBookingException;
 
 public class TicketRequestValidator {
@@ -18,6 +21,7 @@ public class TicketRequestValidator {
     public void validateTicketRequest() throws InvalidBookingException {
         validateAccountId();
         validateTicketRequests();
+        validateAdultTicketPresent();
     }
 
     private void validateAccountId() throws InvalidBookingException {
@@ -47,6 +51,19 @@ public class TicketRequestValidator {
                     "Ticket count must be a positive integer."
                 );
             }
+        }
+    }
+
+    private void validateAdultTicketPresent() throws InvalidBookingException {
+        boolean hasAdultTicket = Arrays.stream(ticketRequests)
+                .anyMatch(request ->
+                        request.type() == TicketType.ADULT
+                        && request.ticketCount() > 0);
+
+        if (!hasAdultTicket) {
+            throw new InvalidBookingException(
+                    "At least one adult ticket must be purchased."
+            );
         }
     }
 }

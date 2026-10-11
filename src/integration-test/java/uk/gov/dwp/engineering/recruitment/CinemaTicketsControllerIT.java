@@ -104,6 +104,8 @@ class CinemaTicketsControllerIT {
 
       assertEquals(201, response.statusCode());
       assertTrue(response.body().contains("\"accountId\":123"));
+      assertTrue(response.body().contains("\"seatCount\":2"));
+      assertTrue(response.body().contains("\"totalCost\":43.49"));
 
       verifyBookingServices(new BigDecimal("43.49"), 2L);
   }
@@ -122,6 +124,10 @@ class CinemaTicketsControllerIT {
           """);
 
       assertEquals(201, response.statusCode());
+      assertTrue(response.body().contains("\"accountId\":123"));
+      assertTrue(response.body().contains("\"seatCount\":2"));
+      assertTrue(response.body().contains("\"totalCost\":51.98"));
+
       verifyBookingServices(new BigDecimal("51.98"), 2L);
   }
 
@@ -142,6 +148,8 @@ class CinemaTicketsControllerIT {
 
       assertEquals(201, response.statusCode());
       assertTrue(response.body().contains("\"accountId\":123"));
+      assertTrue(response.body().contains("\"seatCount\":8"));
+      assertTrue(response.body().contains("\"totalCost\":165.47"));
 
       verifyBookingServices(new BigDecimal("165.47"), 8L);
   }

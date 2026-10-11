@@ -18,12 +18,17 @@ public class TicketRequestValidator {
         this.ticketRequests = ticketRequests;
     }
 
-    public void validateTicketRequest() throws InvalidBookingException {
+    public TicketCounts validateTicketRequest() throws InvalidBookingException {
         validateAccountId();
         validateTicketRequests();
-        validateAdultTicketPresent();
-        validateAdultToInfantRatio();
-        validateMaximumTicketCount();
+
+        TicketCounts counts = TicketCounts.from(ticketRequests);
+
+        validateAdultTicketPresent(counts);
+        validateAdultToInfantRatio(counts);
+        validateMaximumTicketCount(counts);
+
+        return counts;
     }
 
     private void validateAccountId() throws InvalidBookingException {
@@ -56,46 +61,28 @@ public class TicketRequestValidator {
         }
     }
 
-    private void validateAdultTicketPresent() throws InvalidBookingException {
-        boolean hasAdultTicket = Arrays.stream(ticketRequests)
-                .anyMatch(request ->
-                        request.type() == TicketType.ADULT
-                        && request.ticketCount() > 0);
-
-        if (!hasAdultTicket) {
+    private void validateAdultTicketPresent(TicketCounts counts) throws InvalidBookingException {
+        if (counts.adults() == 0) {
             throw new InvalidBookingException(
-                    "At least one adult ticket must be purchased."
+                    "At least one adult ticket is required.");
+        }
+    }
+
+    private void validateAdultToInfantRatio(TicketCounts counts) throws InvalidBookingException {
+        if (counts.adults() < counts.infants()) {
+            throw new InvalidBookingException(
+                "There must be at least as many adult tickets as infant tickets."
             );
         }
     }
 
-    private void validateAdultToInfantRatio() throws InvalidBookingException {
-        int adultCount = Arrays.stream(ticketRequests)
-                .filter(request -> request.type() == TicketType.ADULT)
-                .mapToInt(TicketRequest::ticketCount)
-                .sum();
+    private void validateMaximumTicketCount(TicketCounts counts) throws InvalidBookingException {
+        long totalTicketCount = counts.adults() + counts.children() + counts.infants();
 
-        int infantCount = Arrays.stream(ticketRequests)
-                .filter(request -> request.type() == TicketType.INFANT)
-                .mapToInt(TicketRequest::ticketCount)
-                .sum();
-
-        if (adultCount < infantCount) {
+        if (totalTicketCount > 25) {
             throw new InvalidBookingException(
-                    "There must be at least as many adult tickets as infant tickets."
+                    "A maximum of 25 tickets can be purchased at a time."
             );
-        }
+        }   
     }
-
-    private void validateMaximumTicketCount() throws InvalidBookingException {
-    int totalTicketCount = Arrays.stream(ticketRequests)
-            .mapToInt(TicketRequest::ticketCount)
-            .sum();
-
-    if (totalTicketCount > 25) {
-        throw new InvalidBookingException(
-                "A maximum of 25 tickets can be purchased at a time."
-        );
-    }
-}
 }

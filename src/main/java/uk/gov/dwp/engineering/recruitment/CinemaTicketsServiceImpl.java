@@ -35,11 +35,13 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
         TicketRequestValidator validator =
         new TicketRequestValidator(accountId, ticketRequests);
 
-        validator.validateTicketRequest();
+        TicketCounts counts = validator.validateTicketRequest();
 
-        BigDecimal paymentAmount = calculatePayment(ticketRequests);
+         TicketCounts.from(ticketRequests);
 
-        long seatsToReserve = calculateSeatsToReserve(ticketRequests);
+        BigDecimal paymentAmount = calculatePayment(counts);
+
+        long seatsToReserve = calculateSeatsToReserve(counts);
 
         paymentService.debitAccount(accountId, paymentAmount);
 
@@ -48,39 +50,13 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
         return new BookingConfirmation(accountId);
   }
 
-  private BigDecimal calculatePayment(
-            final TicketRequest... ticketRequests) {
-
-      BigDecimal total = BigDecimal.ZERO;
-
-      for (TicketRequest request : ticketRequests) {
-          BigDecimal ticketPrice = switch (request.type()) {
-              case ADULT -> ADULT_PRICE;
-              case CHILD -> CHILD_PRICE;
-              case INFANT -> INFANT_PRICE;
-          };
-
-          BigDecimal requestTotal = ticketPrice.multiply(
-                  BigDecimal.valueOf(request.ticketCount()));
-
-          total = total.add(requestTotal);
-      }
-
-    return total;
+  private BigDecimal calculatePayment(TicketCounts counts) {
+    return ADULT_PRICE.multiply(BigDecimal.valueOf(counts.adults()))
+            .add(CHILD_PRICE.multiply(BigDecimal.valueOf(counts.children())))
+            .add(INFANT_PRICE.multiply(BigDecimal.valueOf(counts.infants())));
   }
 
-    private long calculateSeatsToReserve(
-            final TicketRequest... ticketRequests) {
-
-      long seats = 0;
-
-      for (TicketRequest request : ticketRequests) {
-          if (request.type() == TicketType.ADULT
-                  || request.type() == TicketType.CHILD) {
-              seats += request.ticketCount();
-          }
-      }
-
-      return seats;
+  private long calculateSeatsToReserve(TicketCounts counts) {
+    return counts.adults() + counts.children();
   }
 }

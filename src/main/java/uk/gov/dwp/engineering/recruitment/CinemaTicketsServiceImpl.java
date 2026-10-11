@@ -25,6 +25,11 @@ public class CinemaTicketsServiceImpl implements CinemaTicketsService {
       final TicketRequest... ticketRequests)
       throws InvalidBookingException {
 
-    throw new InvalidBookingException("Not implemented yet");
+        TicketRequestValidator validator =
+        new TicketRequestValidator(accountId, ticketRequests);
+
+        validator.validateTicketRequest();
+
+        return new BookingConfirmation(accountId);
   }
 }

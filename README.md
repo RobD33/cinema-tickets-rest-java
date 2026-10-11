@@ -10,10 +10,15 @@
 | More INFANT than ADULT             | Reject booking                   |
 | Empty booking or zero tickets      | Reject booking                   |
 | Negative ticket quantities         | Reject booking                   |
-| Valid booking within all limits    | Process payment and reserve seats|
+| Valid booking                      | Process payment and reserve seats|
 
 
 ### Assumptions
 
-One infant per adult lap
-Requests with negative ticket count should be rejected
+- One infant per adult lap
+- Requests with negative ticket count should be rejected
+
+### Approach
+
+- TDD
+- Start with request validation, create new validation class for separation of concerns.
